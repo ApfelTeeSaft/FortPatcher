@@ -15,6 +15,19 @@ class Program
             File.Delete(logFilePath);
         }
 
+        Console.WriteLine("What would you like to do?");
+        Console.WriteLine("1. Modify Shipping to run headless (gameserver hosting)");
+        Console.WriteLine("2. Modify Shipping to fix bugs (client fixes)");
+
+        string option = Console.ReadLine();
+
+        if (option != "1" && option != "2")
+        {
+            Log("Invalid option selected.");
+            ExitProgram();
+            return;
+        }
+
         string folderPath = OpenFolderDialog();
         if (string.IsNullOrEmpty(folderPath))
         {
@@ -42,9 +55,25 @@ class Program
         }
 
         string versionMethod = isVersion5OrHigher.Value ? "5.00 and higher" : "4.5 and lower";
-        Log($"Using method: {versionMethod}");
+        Log($"Detected Version: {versionMethod}");
 
-        ModifyHexValues(fortniteExePath, isVersion5OrHigher.Value);
+        if (option == "1")
+        {
+            ModifyHexValues(fortniteExePath, isVersion5OrHigher.Value);
+        }
+        else if (option == "2")
+        {
+            string versionString = GetFormattedVersionString(fortniteExePath);
+
+            if (ApplyBugFixPatches(fortniteExePath, versionString))
+            {
+                Log("Patches applied successfully.");
+            }
+            else
+            {
+                Log("This version does not have any patches. If there is a patch, contact apfelteesaft on Discord!");
+            }
+        }
 
         ExitProgram();
     }
@@ -205,6 +234,64 @@ class Program
         return false;
     }
 
+    static string GetFormattedVersionString(string exePath)
+    {
+        bool? isVersion5OrHigher = DetectGameVersion(exePath);
+        if (isVersion5OrHigher == null)
+        {
+            return null;
+        }
+
+        string versionString = ExtractVersionString(File.ReadAllBytes(exePath), 0);
+        return versionString.Replace(".", "_");
+    }
+
+    static bool ApplyBugFixPatches(string exePath, string formattedVersionString)
+    {
+        byte[] fileBytes = File.ReadAllBytes(exePath);
+
+        string versionSpecificArrayName = $"bytesold_{formattedVersionString}";
+        string versionSpecificNewArrayName = $"bytesnew_{formattedVersionString}";
+
+        byte[][] oldBytes = GetVersionSpecificBytes(versionSpecificArrayName);
+        byte[][] newBytes = GetVersionSpecificBytes(versionSpecificNewArrayName);
+
+        if (oldBytes.Length == 0 || newBytes.Length == 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < oldBytes.Length; i++)
+        {
+            ReplaceBytes(ref fileBytes, oldBytes[i], newBytes[i]);
+        }
+
+        File.WriteAllBytes(exePath, fileBytes);
+        return true;
+    }
+
+    static byte[][] GetVersionSpecificBytes(string arrayName)
+    {
+        if (arrayName == "bytesold_5_40")
+        {
+            return new byte[][]
+            {
+                new byte[] {0x00 }, // placeholder, i think 5.40 had some MMS patch that can be applied?
+                new byte[] {0x00 } // placeholder, i think 5.40 had some MMS patch that can be applied?
+            };
+        }
+        else if (arrayName == "bytesnew_5_40")
+        {
+            return new byte[][]
+            {
+                new byte[] { 0x00 }, // placeholder, i think 5.40 had some MMS patch that can be applied?
+                new byte[] { 0x00 } // placeholder, i think 5.40 had some MMS patch that can be applied?
+            };
+        }
+
+        return new byte[][] { };
+    }
+
     static void ModifyHexValues(string exePath, bool isVersion5OrHigher)
     {
         byte[] fileBytes = File.ReadAllBytes(exePath);
@@ -225,7 +312,7 @@ class Program
             new byte[] { 0x2D, 0x00, 0x6E, 0x00, 0x75, 0x00, 0x6C, 0x00, 0x6C, 0x00, 0x72, 0x00, 0x68, 0x00, 0x69, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20 }
         };
 
-        // placeholder for legacy builds, will add later when i have time lol
+        // placeholder for legacy
         byte[][] oldHexes4_5 = new byte[][]
         {
             new byte[] {},
