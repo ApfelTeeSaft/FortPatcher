@@ -33,22 +33,10 @@ jobs:
       - name: Zip build output
         run: Compress-Archive -Path ./output/* -DestinationPath ./output/FortPatcher.zip
 
-      # Create a GitHub Release
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+      # Create or Update GitHub Release
+      - name: Create or Update Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./output/FortPatcher.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/FortPatcher.zip
-          asset_name: FortPatcher.zip
-          asset_content_type: application/zip
