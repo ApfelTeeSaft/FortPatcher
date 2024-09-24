@@ -17,7 +17,7 @@ class Program
 
         Console.WriteLine("What would you like to do?");
         Console.WriteLine("1. Modify Shipping to run headless (gameserver hosting)");
-        Console.WriteLine("2. Modify Shipping to fix bugs (client fixes)");
+        Console.WriteLine("2. Modify Shipping to fix bugs (client fixes)"); // kys
 
         string option = Console.ReadLine();
 
@@ -40,7 +40,7 @@ class Program
 
         if (!File.Exists(fortniteExePath))
         {
-            Log("The selected path does not contain a valid Fortnite application.");
+            Log("The selected path does not contain a valid Fortnite application."); // ur stupid if this triggers lmfao
             ExitProgram();
             return;
         }
@@ -53,6 +53,8 @@ class Program
             ExitProgram();
             return;
         }
+
+
 
         string versionMethod = isVersion5OrHigher.Value ? "5.00 and higher" : "4.5 and lower";
         Log($"Detected Version: {versionMethod}");
@@ -71,6 +73,7 @@ class Program
             }
             else
             {
+
                 Log("This version does not have any patches. If there is a patch, contact apfelteesaft on Discord!");
             }
         }
@@ -90,7 +93,7 @@ class Program
         File.AppendAllText(logFilePath, message + Environment.NewLine);
     }
 
-    [DllImport("ole32.dll")]
+    [DllImport("ole32.dll")] // kys dotent i couldn't get windows forms to fucking work
     static extern void CoTaskMemFree(IntPtr ptr);
 
     static readonly Guid CLSID_FileOpenDialog = new Guid("DC1C5A9C-E88A-4DDE-A5A1-60F82A20AEF7");
@@ -170,7 +173,7 @@ class Program
     {
         byte[] fileBytes = File.ReadAllBytes(exePath);
 
-        byte[] versionPattern = new byte[]
+        byte[] versionPattern = new byte[] //scary hacker code ig
         {
             0x46, 0x00, 0x6F, 0x00, 0x72, 0x00, 0x74, 0x00, 0x6E, 0x00,
             0x69, 0x00, 0x74, 0x00, 0x65, 0x00, 0x2B, 0x00, 0x52, 0x00,
@@ -184,6 +187,8 @@ class Program
         {
             return null;
         }
+
+
 
         int versionStartIndex = patternIndex + versionPattern.Length;
 
@@ -246,6 +251,7 @@ class Program
         return versionString.Replace(".", "_");
     }
 
+
     static bool ApplyBugFixPatches(string exePath, string formattedVersionString)
     {
         byte[] fileBytes = File.ReadAllBytes(exePath);
@@ -269,6 +275,7 @@ class Program
         File.WriteAllBytes(exePath, fileBytes);
         return true;
     }
+
 
     static byte[][] GetVersionSpecificBytes(string arrayName)
     {
@@ -303,6 +310,7 @@ class Program
             new byte[] { 0x2D, 0x00, 0x6E, 0x00, 0x6F, 0x00, 0x65, 0x00, 0x70, 0x00, 0x69, 0x00, 0x63, 0x00, 0x70, 0x00, 0x6F, 0x00, 0x72, 0x00, 0x74, 0x00, 0x61, 0x00, 0x6C, 0x00 },
             new byte[] { 0x2D, 0x00, 0x6E, 0x00, 0x6F, 0x00, 0x67, 0x00, 0x61, 0x00, 0x6D, 0x00, 0x65, 0x00, 0x70, 0x00, 0x61, 0x00, 0x64, 0x00, 0x73 }
         };
+
 
         byte[][] newHexes5Plus = new byte[][]
         {
