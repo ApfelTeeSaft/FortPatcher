@@ -36,7 +36,7 @@ class Program
             return;
         }
 
-        string fortniteExePath = Path.Combine(folderPath, "FortniteGame\\Binaries\\Win64\\FortniteClient-Win64-Shipping.exe");
+        string fortniteExePath = Path.Combine(folderPath, "FortniteGame\\Binaries\\Win64\\FortniteClient-Win64-Shipping.exe"); // change Win64 in both path and EXE in this string if you're on a 32 bit build
 
         if (!File.Exists(fortniteExePath))
         {
