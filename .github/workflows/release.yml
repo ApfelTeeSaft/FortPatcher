@@ -5,34 +5,31 @@ on:
     tags:
       - 'v*.*.*' # Trigger on version tags like v1.0.0
 
+permissions:
+  contents: write  # Allow write access to repository contents, including releases
+
 jobs:
-  build:
-    runs-on: windows-latest  # Use a Windows runner
+  release:
+    runs-on: windows-latest
 
     steps:
-      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Setup .NET Core SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.401
 
-      # Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
 
-      # Build the project
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      # Publish the project (build the release binaries)
       - name: Publish
         run: dotnet publish -c Release -o ./output
 
-      # Create a .zip file of the build output
       - name: Zip build output
         run: Compress-Archive -Path ./output/* -DestinationPath ./output/FortPatcher.zip
 
@@ -43,12 +40,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}  # Use the tag that triggered the workflow
+          tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
 
-      # Upload the .zip file to the GitHub Release
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         with:
