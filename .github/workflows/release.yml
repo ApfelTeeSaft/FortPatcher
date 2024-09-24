@@ -1,19 +1,20 @@
-name: Create Release
+name: .NET Build and Release
 
 on:
   push:
     tags:
-      - 'v*.*.*' # Matches version tags like v1.0.0, v2.3.4
+      - 'v*.*.*' # Trigger on version tags like v1.0.0
 
 jobs:
-  release:
-    runs-on: windows-latest
+  build:
+    runs-on: windows-latest  # Use a Windows runner
 
     steps:
+      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Setup .NET Core SDK (change version if needed)
+      # Setup .NET Core SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
@@ -27,27 +28,31 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      # Publish the application
+      # Publish the project (build the release binaries)
       - name: Publish
         run: dotnet publish -c Release -o ./output
 
-      # Upload build artifacts as release assets
+      # Create a .zip file of the build output
+      - name: Zip build output
+        run: Compress-Archive -Path ./output/* -DestinationPath ./output/FortPatcher.zip
+
+      # Create a GitHub Release
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }} # Tag pushed
+          tag_name: ${{ github.ref }}  # Use the tag that triggered the workflow
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
 
-      # Upload build artifacts
+      # Upload the .zip file to the GitHub Release
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output
-          asset_name: FortPatcher-Win.zip
+          asset_path: ./output/FortPatcher.zip
+          asset_name: FortPatcher.zip
           asset_content_type: application/zip
